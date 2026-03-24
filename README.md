@@ -9,7 +9,8 @@ Desarrollado por **PETALO Agency** como proyecto escolar para la materia de Base
 ---
 
 ## 👥 Equipo
-
+| NOMBRE | 
+|---|
 | García Hernández Edgar Alessandro |
 | Soria Lopez Dana Paola | 
 | Velázquez Rivero Lesly |
