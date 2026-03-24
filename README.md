@@ -10,12 +10,9 @@ Desarrollado por **PETALO Agency** como proyecto escolar para la materia de Base
 
 ## 👥 Equipo
 
-| Nombre | Área |
-|---|---|
-| Espinoza Garcia Fátima | Backend — Auth e Invitaciones |
-| García Hernández Edgar Alessandro | Backend — Usuarios y Personal |
-| Soria Lopez Dana Paola | Backend — NNA y Expedientes |
-| Velázquez Rivero Lesly | Frontend — Dashboards y estilos |
+| García Hernández Edgar Alessandro |
+| Soria Lopez Dana Paola | 
+| Velázquez Rivero Lesly |
 
 **Profesor:** Ulises Vélez Saldaña
 
