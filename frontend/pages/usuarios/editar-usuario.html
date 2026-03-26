@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Editar Usuario — No Me Olvides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar"><span class="topbar-title">Personal</span><span class="topbar-breadcrumb">/ Editar Usuario</span></div>
+    <div class="page-body">
+      <div class="page-header">
+        <div><div class="page-title">Editar Usuario</div><div class="page-sub" id="sub">Cargando...</div></div>
+        <button class="btn btn-ghost" onclick="history.back()">← Volver</button>
+      </div>
+      <div id="alert"></div>
+      <div class="card">
+        <div class="form-section">
+          <div class="form-section-title">Datos Personales</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Nombre(s)</label><input id="nombre" type="text"/></div>
+            <div class="form-group"><label>Primer Apellido</label><input id="p_apellido" type="text"/></div>
+            <div class="form-group"><label>Segundo Apellido</label><input id="s_apellido" type="text"/></div>
+            <div class="form-group"><label>RFC</label><input id="rfc" type="text"/></div>
+            <div class="form-group"><label>CURP</label><input id="curp" type="text"/></div>
+            <div class="form-group"><label>Sexo</label>
+              <select id="sexo"><option value="">Seleccionar</option><option>Hombre</option><option>Mujer</option><option>Otro</option></select>
+            </div>
+            <div class="form-group"><label>Edad</label><input id="edad" type="number"/></div>
+            <div class="form-group form-full"><label>Dirección</label><input id="direccion" type="text"/></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Datos Laborales</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Tipo</label>
+              <select id="tipo"><option value="">Seleccionar</option><option value="empleado">Empleado</option><option value="voluntario">Voluntario</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Rol y Estado (solo Director)</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Rol</label>
+              <select id="rol">
+                <option value="">Sin rol</option>
+                <option value="director">Director</option>
+                <option value="coordinador">Coordinador</option>
+                <option value="psicologo">Psicólogo</option>
+                <option value="doctor">Doctor</option>
+                <option value="abogado">Abogado</option>
+                <option value="trabajador_social">Trabajador Social</option>
+                <option value="analista">Analista</option>
+                <option value="equipo_multidisciplinario">Equipo Multidisciplinario</option>
+                <option value="donante">Donante</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Estado</label>
+              <select id="estado"><option value="activo">Activo</option><option value="pendiente">Pendiente</option><option value="inactivo">Inactivo</option><option value="restringido">Restringido</option></select>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:1rem;">
+          <button class="btn btn-danger" onclick="eliminar()">🗑 Eliminar Usuario</button>
+          <div style="display:flex;gap:1rem;">
+            <button class="btn btn-ghost" onclick="history.back()">Cancelar</button>
+            <button class="btn btn-primary" onclick="guardar()">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../../js/auth.js"></script>
+<script>
+  requireAuth(); requireDirector();
+  document.getElementById('sidebar').innerHTML = renderSidebar('usuarios');
+  const id = new URLSearchParams(location.search).get('id');
+
+  async function cargar() {
+    const u = await fetch(`${API}/api/usuarios/${id}`, { headers: authHeaders() }).then(r=>r.json());
+    document.getElementById('sub').textContent = `${u.nombre} ${u.primer_apellido}`;
+    document.getElementById('nombre').value = u.nombre||'';
+    document.getElementById('p_apellido').value = u.primer_apellido||'';
+    document.getElementById('s_apellido').value = u.segundo_apellido||'';
+    document.getElementById('rfc').value = u.rfc||'';
+    document.getElementById('curp').value = u.curp||'';
+    document.getElementById('sexo').value = u.sexo||'';
+    document.getElementById('edad').value = u.edad||'';
+    document.getElementById('direccion').value = u.direccion||'';
+    document.getElementById('tipo').value = u.tipo||'';
+    document.getElementById('rol').value = u.rol||'';
+    document.getElementById('estado').value = u.estado||'';
+  }
+
+  async function guardar() {
+    const body = {
+      nombre: document.getElementById('nombre').value,
+      primer_apellido: document.getElementById('p_apellido').value,
+      segundo_apellido: document.getElementById('s_apellido').value,
+      rfc: document.getElementById('rfc').value,
+      curp: document.getElementById('curp').value,
+      sexo: document.getElementById('sexo').value,
+      edad: parseInt(document.getElementById('edad').value)||null,
+      direccion: document.getElementById('direccion').value,
+      tipo: document.getElementById('tipo').value,
+    };
+    const rolNuevo = document.getElementById('rol').value;
+    const estadoNuevo = document.getElementById('estado').value;
+    await fetch(`${API}/api/usuarios/${id}`, { method:'PUT', headers:authHeaders(), body:JSON.stringify(body) });
+    await fetch(`${API}/api/usuarios/${id}/rol`, { method:'PUT', headers:authHeaders(), body:JSON.stringify({ rol:rolNuevo, estado:estadoNuevo }) });
+    showAlert('Cambios guardados', 'success');
+    setTimeout(()=>location.href='lista-usuarios.html', 1500);
+  }
+
+  async function eliminar() {
+    if (!confirm('¿Eliminar este usuario permanentemente?')) return;
+    await fetch(`${API}/api/usuarios/${id}`, { method:'DELETE', headers:authHeaders() });
+    location.href = 'lista-usuarios.html';
+  }
+
+  function showAlert(msg, tipo) {
+    document.getElementById('alert').innerHTML = `<div class="alert alert-${tipo==='error'?'error':'success'}" style="margin-bottom:1rem;">${msg}</div>`;
+  }
+
+  cargar();
+</script>
+</body>
+</html>

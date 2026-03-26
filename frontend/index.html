@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>No Me Olvides — Iniciar Sesión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0d1a17; --card:#1a2b28; --green:#63b39d; --teal:#4a9080; --border:rgba(99,179,157,.15); --t1:#e8f5f1; --t2:#8fb8ae; --t3:#4a7a6e; --rose:#fc8181; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;}
+    .wrap{display:flex;width:100%;min-height:100vh;}
+    .left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:3rem 4rem;border-right:1px solid var(--border);}
+    .brand-row{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+    .brand-icon{width:52px;height:52px;background:linear-gradient(135deg,#63b39d,#4a9080);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 8px 24px rgba(99,179,157,.3);}
+    .brand-name{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1.1;}
+    .brand-sub{font-size:.7rem;color:var(--green);letter-spacing:.15em;text-transform:uppercase;}
+    .tagline{font-family:'Playfair Display',serif;font-size:2.5rem;line-height:1.2;font-style:italic;margin-bottom:1rem;}
+    .tagline span{color:var(--green);font-style:normal;}
+    .desc{font-size:.95rem;color:var(--t2);line-height:1.7;max-width:420px;margin-bottom:2rem;}
+    .features{display:flex;flex-direction:column;gap:.75rem;}
+    .feature{display:flex;align-items:center;gap:.85rem;padding:.85rem 1.2rem;background:rgba(99,179,157,.06);border:1px solid var(--border);border-radius:10px;}
+    .feature-icon{font-size:1.2rem;}
+    .feature-text{font-size:.82rem;color:var(--t2);}
+    .feature-text strong{color:var(--t1);display:block;font-size:.85rem;}
+    .right{width:460px;display:flex;align-items:center;justify-content:center;padding:2rem;flex-shrink:0;}
+    .card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;box-shadow:0 24px 64px rgba(0,0,0,.4);}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.4rem;}
+    .card-sub{font-size:.875rem;color:var(--t3);margin-bottom:2rem;}
+    .fg{margin-bottom:1.2rem;}
+    label{display:block;font-size:.75rem;color:var(--t2);margin-bottom:.5rem;letter-spacing:.05em;text-transform:uppercase;}
+    input{width:100%;padding:.8rem 1rem;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border .2s,box-shadow .2s;box-sizing:border-box;}
+    input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(99,179,157,.15);}
+    input::placeholder{color:var(--t3);}
+    .btn-login{width:100%;padding:.9rem;border:none;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,#63b39d,#4a9080);color:#fff;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;transition:transform .15s,box-shadow .2s;box-shadow:0 4px 20px rgba(99,179,157,.35);margin-top:.5rem;}
+    .btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(99,179,157,.45);}
+    .demo{margin-top:1.5rem;padding:1rem;border-radius:10px;background:rgba(183,148,244,.06);border:1px solid rgba(183,148,244,.15);}
+    .demo-title{font-size:.7rem;color:#b794f4;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;}
+    .demo-acc{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t2);padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:color .15s;}
+    .demo-acc:last-child{border-bottom:none;}
+    .demo-acc:hover{color:var(--t1);}
+    .tag{font-size:.68rem;padding:.15rem .5rem;border-radius:20px;background:rgba(99,179,157,.15);color:var(--green);}
+    .err{color:var(--rose);font-size:.82rem;margin-top:.5rem;padding:.6rem .8rem;background:rgba(252,129,129,.08);border-radius:8px;display:none;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="left">
+    <div class="brand-row">
+      <div class="brand-icon">🌸</div>
+      <div>
+        <div class="brand-name">No Me Olvides</div>
+        <div class="brand-sub">Fundación Infantil · PETALO Agency</div>
+      </div>
+    </div>
+    <div class="tagline">Manteniendo vivo<br>el amor y <span>construyendo</span><br>su futuro.</div>
+    <p class="desc">Sistema de gestión para el registro y seguimiento de Niñas, Niños y Adolescentes víctimas de orfandad por feminicidio o abandono materno.</p>
+    <div class="features">
+      <div class="feature"><span class="feature-icon">🔒</span><div class="feature-text"><strong>Acceso por Roles</strong>Director, Coordinador, Equipo Multidisciplinario y Donantes</div></div>
+      <div class="feature"><span class="feature-icon">📋</span><div class="feature-text"><strong>Expedientes Digitales</strong>Historial completo de cada NNA con seguimiento de estatus</div></div>
+      <div class="feature"><span class="feature-icon">🔍</span><div class="feature-text"><strong>Búsqueda Multicriterio</strong>Localización de expedientes en segundos</div></div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="card">
+      <div class="card-title">Iniciar Sesión</div>
+      <div class="card-sub">Ingresa tus credenciales para continuar</div>
+      <div class="fg"><label>Correo Electrónico</label><input type="email" id="email" placeholder="correo@fundacion.org"/></div>
+      <div class="fg"><label>Contraseña</label><input type="password" id="pass" placeholder="••••••••"/></div>
+      <div class="err" id="err">Correo o contraseña incorrectos.</div>
+      <button class="btn-login" onclick="handleLogin()">Entrar al sistema</button>
+      <div class="demo">
+        <div class="demo-title">✦ Cuentas de demostración</div>
+        <div class="demo-acc" onclick="fill('director@fundacion.org','1234')">director@fundacion.org <span class="tag">Director</span></div>
+        <div class="demo-acc" onclick="fill('coordinador@fundacion.org','1234')">coordinador@fundacion.org <span class="tag">Coordinador</span></div>
+        <div class="demo-acc" onclick="fill('psicologo@fundacion.org','1234')">psicologo@fundacion.org <span class="tag">Psicólogo</span></div>
+        <div class="demo-acc" onclick="fill('donante@fundacion.org','1234')">donante@fundacion.org <span class="tag">Donante</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/auth.js"></script>
+<script>
+  function fill(e,p){document.getElementById('email').value=e;document.getElementById('pass').value=p;}
+  async function handleLogin(){
+    const email=document.getElementById('email').value.trim();
+    const pass=document.getElementById('pass').value;
+    const err=document.getElementById('err');
+    err.style.display='none';
+    const result=await loginReal(email,pass);
+    if(result.error){err.textContent=result.error;err.style.display='block';}
+    else{window.location.href=result.dashboard;}
+  }
+  document.addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin();});
+</script>
+</body>
+</html>

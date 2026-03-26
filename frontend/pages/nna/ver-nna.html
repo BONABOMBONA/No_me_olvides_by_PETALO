@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Expediente NNA — No Me Olvides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .d-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .d-item label{font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem;display:block;}
+    .d-item p{font-size:.9rem;color:var(--text-1);}
+    .section{margin-bottom:2rem;}
+    .section-title{font-size:.75rem;color:var(--green);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar"><span class="topbar-title">NNA</span><span class="topbar-breadcrumb">/ Expediente</span></div>
+    <div class="page-body">
+      <div class="page-header">
+        <div><div class="page-title" id="nombre-title">Cargando...</div><div class="page-sub" id="estatus-sub"></div></div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="history.back()">← Volver</button>
+          <button class="btn btn-secondary" id="btn-editar">✏️ Editar</button>
+          <select id="sel-estatus" class="btn btn-ghost" onchange="cambiarEstatus()" style="cursor:pointer;">
+            <option value="">Cambiar estatus...</option>
+            <option value="sin_proceso">Sin Proceso</option>
+            <option value="en_proceso">En Proceso</option>
+            <option value="concluido">Concluido</option>
+          </select>
+        </div>
+      </div>
+      <div id="alert"></div>
+      <div class="card" id="contenido"></div>
+    </div>
+  </div>
+</div>
+<script src="../../js/auth.js"></script>
+<script>
+  requireAuth();
+  document.getElementById('sidebar').innerHTML = renderSidebar('nna');
+  const id = new URLSearchParams(location.search).get('id');
+  document.getElementById('btn-editar').onclick = () => location.href = `editar-nna.html?id=${id}`;
+
+  const bE = { sin_proceso:'badge-sin', en_proceso:'badge-proceso', concluido:'badge-concluido' };
+  const lE = { sin_proceso:'Sin proceso', en_proceso:'En proceso', concluido:'Concluido' };
+  const si = v => v ? '✅ Sí' : '❌ No';
+  const val = v => v || '—';
+
+  async function cargar() {
+    const n = await fetch(`${API}/api/nna/${id}`, { headers: authHeaders() }).then(r=>r.json());
+    document.getElementById('nombre-title').textContent = `${n.nombre} ${n.primer_apellido||''} ${n.segundo_apellido||''}`;
+    document.getElementById('estatus-sub').innerHTML = `<span class="badge ${bE[n.estatus]||''}">${lE[n.estatus]||n.estatus}</span>`;
+
+    document.getElementById('contenido').innerHTML = `
+      <div class="section"><div class="section-title">I. Datos de la Víctima</div>
+        <div class="d-grid">
+          <div class="d-item"><label>CURP</label><p>${val(n.curp)}</p></div>
+          <div class="d-item"><label>Fecha de Nacimiento</label><p>${val(n.fecha_nacimiento)}</p></div>
+          <div class="d-item"><label>Sexo</label><p>${val(n.sexo)}</p></div>
+          <div class="d-item"><label>Nacionalidad</label><p>${val(n.nacionalidad)}</p></div>
+          <div class="d-item"><label>Estado Civil</label><p>${val(n.estado_civil)}</p></div>
+          <div class="d-item"><label>Lugar de Nacimiento</label><p>${val(n.lugar_nac_municipio)}, ${val(n.lugar_nac_entidad)}</p></div>
+        </div>
+      </div>
+      <div class="section"><div class="section-title">Domicilio</div>
+        <div class="d-grid">
+          <div class="d-item"><label>Calle</label><p>${val(n.calle)} ${val(n.numero_exterior)}</p></div>
+          <div class="d-item"><label>Colonia / CP</label><p>${val(n.colonia)}, ${val(n.codigo_postal)}</p></div>
+          <div class="d-item"><label>Municipio</label><p>${val(n.delegacion_municipio)}</p></div>
+          <div class="d-item"><label>Entidad Federativa</label><p>${val(n.entidad_federativa)}</p></div>
+        </div>
+      </div>
+      <div class="section"><div class="section-title">II. Tipo de Víctima y Hechos</div>
+        <div class="d-grid">
+          <div class="d-item"><label>Tipo de Víctima</label><p>${val(n.tipo_victima)}</p></div>
+          <div class="d-item"><label>Tipo de Violencia</label><p>${val(n.tipo_violencia)}</p></div>
+          <div class="d-item"><label>Fecha de Hechos</label><p>${val(n.fecha_hechos)}</p></div>
+          <div class="d-item"><label>Lugar de Hechos</label><p>${val(n.lugar_hechos_municipio)}, ${val(n.lugar_hechos_entidad)}</p></div>
+        </div>
+        ${n.relato_hechos ? `<div class="d-item" style="margin-top:1rem;"><label>Relato de los Hechos</label><p style="line-height:1.7;">${n.relato_hechos}</p></div>` : ''}
+      </div>
+      <div class="section"><div class="section-title">VI. Daño Sufrido</div>
+        <div class="d-grid">
+          <div class="d-item"><label>Físico</label><p>${si(n.dano_fisico)}</p></div>
+          <div class="d-item"><label>Psicológico</label><p>${si(n.dano_psicologico)}</p></div>
+          <div class="d-item"><label>Patrimonial</label><p>${si(n.dano_patrimonial)}</p></div>
+          <div class="d-item"><label>Sexual</label><p>${si(n.dano_sexual)}</p></div>
+        </div>
+      </div>
+      <div class="section"><div class="section-title">VII. Investigación Ministerial</div>
+        <div class="d-grid">
+          <div class="d-item"><label>Denunció ante MP</label><p>${si(n.denuncio_mp)}</p></div>
+          <div class="d-item"><label>Delito</label><p>${val(n.delito_mp)}</p></div>
+          <div class="d-item"><label>No. Averiguación</label><p>${val(n.numero_averiguacion)}</p></div>
+          <div class="d-item"><label>Estado</label><p>${val(n.estado_investigacion)}</p></div>
+        </div>
+      </div>
+      <div class="section"><div class="section-title">VIII. Información Complementaria</div>
+        <div class="d-grid">
+          <div class="d-item"><label>Tutor/a</label><p>${val(n.nombre_tutor)}</p></div>
+          <div class="d-item"><label>Contacto Tutor</label><p>${val(n.contacto_tutor)}</p></div>
+          <div class="d-item"><label>Habla Español</label><p>${si(n.habla_espanol)}</p></div>
+          <div class="d-item"><label>Requiere Traductor</label><p>${si(n.requiere_traductor)}</p></div>
+          <div class="d-item"><label>Discapacidad</label><p>${si(n.tiene_discapacidad)} ${n.tipo_discapacidad||''}</p></div>
+          <div class="d-item"><label>Comunidad Indígena</label><p>${si(n.pertenece_indigena)} ${n.comunidad_indigena||''}</p></div>
+        </div>
+      </div>
+      <div class="section"><div class="section-title">Control del Expediente</div>
+        <div class="d-grid">
+          <div class="d-item"><label>Fecha de Ingreso</label><p>${n.fecha_ingreso ? new Date(n.fecha_ingreso).toLocaleDateString('es-MX') : '—'}</p></div>
+          <div class="d-item"><label>Inicio de Proceso</label><p>${n.fecha_inicio_proceso ? new Date(n.fecha_inicio_proceso).toLocaleDateString('es-MX') : '—'}</p></div>
+          <div class="d-item"><label>Fecha de Cierre</label><p>${n.fecha_cierre ? new Date(n.fecha_cierre).toLocaleDateString('es-MX') : '—'}</p></div>
+        </div>
+      </div>`;
+  }
+
+  async function cambiarEstatus() {
+    const estatus = document.getElementById('sel-estatus').value;
+    if (!estatus) return;
+    await fetch(`${API}/api/nna/${id}/estatus`, { method:'PUT', headers:authHeaders(), body:JSON.stringify({ estatus }) });
+    document.getElementById('alert').innerHTML = `<div class="alert alert-success" style="margin-bottom:1rem;">Estatus actualizado a: ${estatus}</div>`;
+    cargar();
+  }
+
+  cargar();
+</script>
+</body>
+</html>

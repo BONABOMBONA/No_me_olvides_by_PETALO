@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Dashboard Equipo — No Me Olvides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar"><span class="topbar-title">Mi Panel</span></div>
+    <div class="page-body">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="saludo">Bienvenido</div>
+          <div class="page-sub">Panel del equipo multidisciplinario</div>
+        </div>
+        <button class="btn btn-primary" onclick="location.href='nna/registro-nna.html'">+ Nuevo Expediente</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Expedientes</div><div class="stat-value" id="s-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">Sin Proceso</div><div class="stat-value" id="s-sin">—</div></div>
+        <div class="stat-card"><div class="stat-label">En Proceso</div><div class="stat-value" id="s-en">—</div></div>
+        <div class="stat-card"><div class="stat-label">Concluidos</div><div class="stat-value" id="s-con">—</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><span class="table-title">Expedientes Recientes</span></div>
+        <table>
+          <thead><tr><th>Nombre</th><th>CURP</th><th>Tipo Violencia</th><th>Estatus</th><th>Acciones</th></tr></thead>
+          <tbody id="tabla-nna"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../js/auth.js"></script>
+<script>
+  requireAuth();
+  document.getElementById('sidebar').innerHTML = renderSidebar('dashboard');
+  document.getElementById('saludo').textContent = `Bienvenido, ${getNombre()}`;
+
+  const badges = { sin_proceso:'badge-sin', en_proceso:'badge-proceso', concluido:'badge-concluido' };
+  const labels = { sin_proceso:'Sin proceso', en_proceso:'En proceso', concluido:'Concluido' };
+
+  async function cargar() {
+    const nna = await fetch(`${API}/api/nna`, { headers: authHeaders() }).then(r=>r.json());
+    if (!Array.isArray(nna)) return;
+    document.getElementById('s-total').textContent = nna.length;
+    document.getElementById('s-sin').textContent = nna.filter(n=>n.estatus==='sin_proceso').length;
+    document.getElementById('s-en').textContent = nna.filter(n=>n.estatus==='en_proceso').length;
+    document.getElementById('s-con').textContent = nna.filter(n=>n.estatus==='concluido').length;
+    document.getElementById('tabla-nna').innerHTML = nna.slice(0,10).map(n=>`
+      <tr>
+        <td class="name">${n.nombre} ${n.primer_apellido}</td>
+        <td>${n.curp||'—'}</td>
+        <td>${n.tipo_violencia||'—'}</td>
+        <td><span class="badge ${badges[n.estatus]||''}">${labels[n.estatus]||n.estatus}</span></td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="location.href='nna/ver-nna.html?id=${n.id}'">Ver</button>
+          <button class="btn btn-ghost btn-sm" onclick="location.href='nna/editar-nna.html?id=${n.id}'">Editar</button>
+        </td>
+      </tr>`).join('');
+  }
+  cargar();
+</script>
+</body>
+</html>

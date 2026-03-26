@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Registro — No Me Olvides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0d1a17;--card:#1a2b28;--green:#63b39d;--teal:#4a9080;--border:rgba(99,179,157,.15);--t1:#e8f5f1;--t2:#8fb8ae;--t3:#4a7a6e;--rose:#fc8181;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+    .wrap{width:100%;max-width:520px;}
+    .header{text-align:center;margin-bottom:2rem;}
+    .logo{width:52px;height:52px;background:linear-gradient(135deg,#63b39d,#4a9080);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 1rem;}
+    .title{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:.5rem;}
+    .sub{font-size:.9rem;color:var(--t2);}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;}
+    .section-title{font-size:.72rem;color:var(--green);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);margin-top:1.5rem;}
+    .section-title:first-child{margin-top:0;}
+    .fg{margin-bottom:1rem;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    label{display:block;font-size:.75rem;color:var(--t2);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+    input{width:100%;padding:.8rem 1rem;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border .2s,box-shadow .2s;}
+    input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(99,179,157,.15);}
+    input::placeholder{color:var(--t3);}
+    .btn{width:100%;padding:.9rem;border:none;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,#63b39d,#4a9080);color:#fff;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;margin-top:1.5rem;transition:transform .15s,box-shadow .2s;box-shadow:0 4px 20px rgba(99,179,157,.35);}
+    .btn:hover{transform:translateY(-1px);}
+    .alert{padding:.9rem 1.2rem;border-radius:8px;font-size:.875rem;margin-bottom:1rem;}
+    .alert-error{background:rgba(252,129,129,.1);border:1px solid rgba(252,129,129,.2);color:var(--rose);}
+    .alert-success{background:rgba(104,211,145,.1);border:1px solid rgba(104,211,145,.2);color:#68d391;}
+    .invalid{text-align:center;padding:3rem;color:var(--rose);}
+    .invalid h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:1rem;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">🌸</div>
+    <div class="title">Crear Cuenta</div>
+    <div class="sub">Fundación No Me Olvides — Registro de Personal</div>
+  </div>
+
+  <div id="validando" style="text-align:center;padding:2rem;color:var(--t2);">Validando link...</div>
+
+  <div class="card" id="form-card" style="display:none;">
+    <div id="alert"></div>
+    <div class="section-title">Datos Personales</div>
+    <div class="row">
+      <div class="fg"><label>Nombre(s) *</label><input id="nombre" type="text" placeholder="Tu nombre"/></div>
+      <div class="fg"><label>Primer Apellido *</label><input id="p_apellido" type="text"/></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Segundo Apellido</label><input id="s_apellido" type="text"/></div>
+      <div class="fg"><label>RFC</label><input id="rfc" type="text" maxlength="13"/></div>
+    </div>
+    <div class="fg"><label>CURP</label><input id="curp" type="text" maxlength="18"/></div>
+
+    <div class="section-title">Acceso al Sistema</div>
+    <div class="fg"><label>Correo Electrónico *</label><input id="correo" type="email" placeholder="tu@correo.com"/></div>
+    <div class="row">
+      <div class="fg"><label>Contraseña *</label><input id="pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
+      <div class="fg"><label>Confirmar Contraseña *</label><input id="pass2" type="password" placeholder="Repite tu contraseña"/></div>
+    </div>
+
+    <button class="btn" onclick="registrar()">Crear mi cuenta</button>
+  </div>
+
+  <div class="card" id="exito-card" style="display:none;text-align:center;padding:2.5rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">🌸</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:1rem;">¡Cuenta creada exitosamente!</div>
+    <p style="font-size:.9rem;color:var(--t2);line-height:1.7;">
+      Tu cuenta ha sido registrada correctamente.<br><br>
+      <strong style="color:var(--t1);">Acuda a las oficinas de la fundación para verificar su identidad y activar su rol en el sistema.</strong><br><br>
+      Una vez verificado, podrá iniciar sesión con su correo y contraseña.
+    </p>
+  </div>
+
+  <div class="card invalid" id="invalido-card" style="display:none;">
+    <h2>Link no válido</h2>
+    <p>Este link de registro no es válido, ya fue utilizado o ha expirado.<br>Solicita un nuevo link al director de la fundación.</p>
+  </div>
+</div>
+<script>
+  const API = "http://127.0.0.1:8000";
+  const token = new URLSearchParams(location.search).get('token');
+
+  async function validarToken() {
+    if (!token) { mostrar('invalido'); return; }
+    const res = await fetch(`${API}/api/invitaciones/validar/${token}`);
+    if (res.ok) { mostrar('form'); }
+    else { mostrar('invalido'); }
+  }
+
+  function mostrar(cual) {
+    document.getElementById('validando').style.display = 'none';
+    document.getElementById('form-card').style.display = cual === 'form' ? 'block' : 'none';
+    document.getElementById('exito-card').style.display = cual === 'exito' ? 'block' : 'none';
+    document.getElementById('invalido-card').style.display = cual === 'invalido' ? 'block' : 'none';
+  }
+
+  async function registrar() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const p_apellido = document.getElementById('p_apellido').value.trim();
+    const correo = document.getElementById('correo').value.trim();
+    const pass = document.getElementById('pass').value;
+    const pass2 = document.getElementById('pass2').value;
+
+    if (!nombre || !p_apellido || !correo || !pass) {
+      showAlert('Completa todos los campos obligatorios', 'error'); return;
+    }
+    if (pass !== pass2) {
+      showAlert('Las contraseñas no coinciden', 'error'); return;
+    }
+    if (pass.length < 6) {
+      showAlert('La contraseña debe tener al menos 6 caracteres', 'error'); return;
+    }
+
+    const body = {
+      token, nombre, primer_apellido: p_apellido,
+      segundo_apellido: document.getElementById('s_apellido').value,
+      rfc: document.getElementById('rfc').value,
+      curp: document.getElementById('curp').value,
+      correo, contrasena: pass
+    };
+
+    const res = await fetch(`${API}/api/registro`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+
+    if (res.ok) { mostrar('exito'); }
+    else {
+      const data = await res.json();
+      showAlert(data.detail||'Error al registrar', 'error');
+    }
+  }
+
+  function showAlert(msg, tipo) {
+    document.getElementById('alert').innerHTML = `<div class="alert alert-${tipo}">${msg}</div>`;
+  }
+
+  validarToken();
+</script>
+</body>
+</html>

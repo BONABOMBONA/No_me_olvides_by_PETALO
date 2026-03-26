@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Ver Usuario — No Me Olvides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}.detail-item label{font-size:.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem;display:block;}.detail-item p{font-size:.9rem;color:var(--text-1);}</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar"><span class="topbar-title">Personal</span><span class="topbar-breadcrumb">/ Ver Usuario</span></div>
+    <div class="page-body">
+      <div class="page-header">
+        <div><div class="page-title" id="nombre-title">Cargando...</div><div class="page-sub" id="rol-sub"></div></div>
+        <div style="display:flex;gap:.75rem;">
+          <button class="btn btn-ghost" onclick="history.back()">← Volver</button>
+          <button class="btn btn-secondary" id="btn-editar">✏️ Editar</button>
+        </div>
+      </div>
+      <div class="card" id="detalle"></div>
+    </div>
+  </div>
+</div>
+<script src="../../js/auth.js"></script>
+<script>
+  requireAuth(); requireDirector();
+  document.getElementById('sidebar').innerHTML = renderSidebar('usuarios');
+  const id = new URLSearchParams(location.search).get('id');
+  document.getElementById('btn-editar').onclick = () => location.href = `editar-usuario.html?id=${id}`;
+
+  const bEstado = { activo:'badge-active', inactivo:'badge-inactive', pendiente:'badge-pending', restringido:'badge-inactive' };
+
+  async function cargar() {
+    const u = await fetch(`${API}/api/usuarios/${id}`, { headers: authHeaders() }).then(r=>r.json());
+    document.getElementById('nombre-title').textContent = `${u.nombre} ${u.primer_apellido||''} ${u.segundo_apellido||''}`;
+    document.getElementById('rol-sub').innerHTML = `<span class="badge ${bEstado[u.estado]||''}">${u.estado}</span> &nbsp; ${u.rol||'Sin rol asignado'}`;
+    document.getElementById('detalle').innerHTML = `
+      <div class="form-section-title" style="margin-bottom:1rem;">Datos Personales</div>
+      <div class="detail-grid" style="margin-bottom:1.5rem;">
+        <div class="detail-item"><label>RFC</label><p>${u.rfc||'—'}</p></div>
+        <div class="detail-item"><label>CURP</label><p>${u.curp||'—'}</p></div>
+        <div class="detail-item"><label>Sexo</label><p>${u.sexo||'—'}</p></div>
+        <div class="detail-item"><label>Edad</label><p>${u.edad||'—'}</p></div>
+        <div class="detail-item" style="grid-column:1/-1"><label>Dirección</label><p>${u.direccion||'—'}</p></div>
+      </div>
+      <div class="form-section-title" style="margin-bottom:1rem;">Datos del Sistema</div>
+      <div class="detail-grid">
+        <div class="detail-item"><label>Correo</label><p>${u.correo}</p></div>
+        <div class="detail-item"><label>Tipo</label><p>${u.tipo||'—'}</p></div>
+        <div class="detail-item"><label>Fecha de Registro</label><p>${u.fecha_registro ? new Date(u.fecha_registro).toLocaleDateString('es-MX') : '—'}</p></div>
+      </div>`;
+  }
+  cargar();
+</script>
+</body>
+</html>

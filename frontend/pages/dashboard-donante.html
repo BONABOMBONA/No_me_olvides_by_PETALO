@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Dashboard Donante — No Me Olvides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar"><span class="topbar-title">Mi Panel</span></div>
+    <div class="page-body">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="saludo">Bienvenido</div>
+          <div class="page-sub">Panel de donante — No Me Olvides</div>
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-bottom:1.5rem;">
+        🌸 Gracias por tu apoyo. Aquí puedes ver el impacto de la fundación de forma anónima.
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Niños Atendidos</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">total registrados</div></div>
+        <div class="stat-card"><div class="stat-label">Casos Activos</div><div class="stat-value" id="s-proceso">—</div><div class="stat-sub">en seguimiento</div></div>
+        <div class="stat-card"><div class="stat-label">Casos Concluidos</div><div class="stat-value" id="s-concluido">—</div><div class="stat-sub">atención completada</div></div>
+      </div>
+      <div class="card">
+        <div style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1rem;">Sobre la Fundación</div>
+        <p style="font-size:.9rem;color:var(--text-2);line-height:1.8;">
+          La Fundación "No Me Olvides" brinda atención integral a Niñas, Niños y Adolescentes (NNA) víctimas de orfandad por feminicidio o abandono materno en el Estado de México.
+          Contamos con un equipo multidisciplinario de psicólogos, médicos, abogados y trabajadores sociales comprometidos con el bienestar de cada niño.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../js/auth.js"></script>
+<script>
+  requireAuth();
+  document.getElementById('sidebar').innerHTML = renderSidebar('dashboard');
+  document.getElementById('saludo').textContent = `Bienvenido, ${getNombre()}`;
+  async function cargar() {
+    const nna = await fetch(`${API}/api/nna`, { headers: authHeaders() }).then(r=>r.json()).catch(()=>[]);
+    if (!Array.isArray(nna)) return;
+    document.getElementById('s-total').textContent = nna.length;
+    document.getElementById('s-proceso').textContent = nna.filter(n=>n.estatus==='en_proceso').length;
+    document.getElementById('s-concluido').textContent = nna.filter(n=>n.estatus==='concluido').length;
+  }
+  cargar();
+</script>
+</body>
+</html>
