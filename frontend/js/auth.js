@@ -1,23 +1,5 @@
 const API = "http://127.0.0.1:8000";
 
-function login(email, password) {
-  const cuentas = {
-    "director@fundacion.org":     { password:"1234", rol:"director",     nombre:"Director",     dashboard:"pages/dashboard-director.html" },
-    "coordinador@fundacion.org":  { password:"1234", rol:"coordinador",  nombre:"Coordinador",  dashboard:"pages/dashboard-director.html" },
-    "psicologo@fundacion.org":    { password:"1234", rol:"psicologo",    nombre:"Psicólogo",    dashboard:"pages/dashboard-equipo.html" },
-    "doctor@fundacion.org":       { password:"1234", rol:"doctor",       nombre:"Doctor",       dashboard:"pages/dashboard-equipo.html" },
-    "donante@fundacion.org":      { password:"1234", rol:"donante",      nombre:"Donante",      dashboard:"pages/dashboard-donante.html" },
-  };
-  const cuenta = cuentas[email];
-  if (cuenta && cuenta.password === password) {
-    localStorage.setItem("token", "demo-token");
-    localStorage.setItem("rol", cuenta.rol);
-    localStorage.setItem("nombre", cuenta.nombre);
-    return cuenta;
-  }
-  return null;
-}
-
 async function loginReal(email, password) {
   try {
     const res = await fetch(`${API}/api/login`, {
@@ -53,19 +35,29 @@ function getToken()  { return localStorage.getItem("token"); }
 function getRol()    { return localStorage.getItem("rol"); }
 function getNombre() { return localStorage.getItem("nombre"); }
 
+// Calcula cuántos niveles de profundidad tiene la página actual
+// index.html → base = ""
+// pages/algo.html → base = "../"
+// pages/sub/algo.html → base = "../../"
+function getBase() {
+  const path = window.location.pathname;
+  const depth = (path.match(/\//g) || []).length - 1;
+  return "../".repeat(depth);
+}
+
 function logout() {
   localStorage.clear();
-  window.location.href = "../index.html";
+  window.location.href = getBase() + "index.html";
 }
 
 function requireAuth() {
-  if (!getToken()) window.location.href = "../index.html";
+  if (!getToken()) window.location.href = getBase() + "index.html";
 }
 
 function requireDirector() {
   const rol = getRol();
   if (!rol || !["director","coordinador"].includes(rol)) {
-    window.location.href = "../index.html";
+    window.location.href = getBase() + "index.html";
   }
 }
 
@@ -81,27 +73,34 @@ function renderSidebar(activo) {
   const nombre = getNombre();
   const esDirector = ["director","coordinador"].includes(rol);
   const esDonante = rol === "donante";
+  const base = getBase();
 
   const navDirector = esDirector ? `
     <div class="nav-label">Gestión</div>
-    <div class="nav-item ${activo==='usuarios'?'active':''}" onclick="location.href='${esDirector?'usuarios/lista-usuarios.html':'#'}'">
+    <div class="nav-item ${activo==='usuarios'?'active':''}" onclick="location.href='${base}pages/usuarios/lista-usuarios.html'">
       <span class="nav-icon">👥</span> Personal
     </div>
-    <div class="nav-item ${activo==='invitaciones'?'active':''}" onclick="generarLink && generarLink()">
+    <div class="nav-item ${activo==='invitaciones'?'active':''}" onclick="location.href='${base}pages/dashboard-director.html'">
       <span class="nav-icon">🔗</span> Generar Link
     </div>` : "";
 
   const navNNA = !esDonante ? `
     <div class="nav-label">Beneficiarios</div>
-    <div class="nav-item ${activo==='nna'?'active':''}" onclick="location.href='nna/lista-nna.html'">
+    <div class="nav-item ${activo==='nna'?'active':''}" onclick="location.href='${base}pages/nna/lista-nna.html'">
       <span class="nav-icon">📋</span> Expedientes NNA
     </div>` : "";
 
   const navStats = esDirector || esDonante ? `
     <div class="nav-label">Reportes</div>
-    <div class="nav-item ${activo==='stats'?'active':''}" onclick="location.href='estadisticas.html'">
+    <div class="nav-item ${activo==='stats'?'active':''}" onclick="location.href='${base}pages/estadisticas.html'">
       <span class="nav-icon">📊</span> Estadísticas
     </div>` : "";
+
+  const dashboardUrl = esDonante
+    ? `${base}pages/dashboard-donante.html`
+    : esDirector
+      ? `${base}pages/dashboard-director.html`
+      : `${base}pages/dashboard-equipo.html`;
 
   return `
     <div class="sb-logo">
@@ -119,7 +118,7 @@ function renderSidebar(activo) {
       </div>
     </div>
     <nav class="sb-nav">
-      <div class="nav-item ${activo==='dashboard'?'active':''}" onclick="location.href='${esDonante?'dashboard-donante.html':esDirector?'dashboard-director.html':'dashboard-equipo.html'}'">
+      <div class="nav-item ${activo==='dashboard'?'active':''}" onclick="location.href='${dashboardUrl}'">
         <span class="nav-icon">🏠</span> Inicio
       </div>
       ${navDirector}${navNNA}${navStats}

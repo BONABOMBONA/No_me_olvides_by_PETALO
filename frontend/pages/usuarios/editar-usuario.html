@@ -25,12 +25,12 @@
             <div class="form-group"><label>Nombre(s)</label><input id="nombre" type="text"/></div>
             <div class="form-group"><label>Primer Apellido</label><input id="p_apellido" type="text"/></div>
             <div class="form-group"><label>Segundo Apellido</label><input id="s_apellido" type="text"/></div>
-            <div class="form-group"><label>RFC</label><input id="rfc" type="text"/></div>
-            <div class="form-group"><label>CURP</label><input id="curp" type="text"/></div>
+            <div class="form-group"><label>RFC</label><input id="rfc" type="text" maxlength="13"/></div>
+            <div class="form-group"><label>CURP</label><input id="curp" type="text" maxlength="18"/></div>
             <div class="form-group"><label>Sexo</label>
               <select id="sexo"><option value="">Seleccionar</option><option>Hombre</option><option>Mujer</option><option>Otro</option></select>
             </div>
-            <div class="form-group"><label>Edad</label><input id="edad" type="number"/></div>
+            <div class="form-group"><label>Edad</label><input id="edad" type="number" min="1" max="120"/></div>
             <div class="form-group form-full"><label>Dirección</label><input id="direccion" type="text"/></div>
           </div>
         </div>
@@ -98,22 +98,42 @@
   }
 
   async function guardar() {
-    const body = {
-      nombre: document.getElementById('nombre').value,
-      primer_apellido: document.getElementById('p_apellido').value,
-      segundo_apellido: document.getElementById('s_apellido').value,
-      rfc: document.getElementById('rfc').value,
-      curp: document.getElementById('curp').value,
-      sexo: document.getElementById('sexo').value,
-      edad: parseInt(document.getElementById('edad').value)||null,
-      direccion: document.getElementById('direccion').value,
-      tipo: document.getElementById('tipo').value,
-    };
-    const rolNuevo = document.getElementById('rol').value;
-    const estadoNuevo = document.getElementById('estado').value;
-    await fetch(`${API}/api/usuarios/${id}`, { method:'PUT', headers:authHeaders(), body:JSON.stringify(body) });
-    await fetch(`${API}/api/usuarios/${id}/rol`, { method:'PUT', headers:authHeaders(), body:JSON.stringify({ rol:rolNuevo, estado:estadoNuevo }) });
-    showAlert('Cambios guardados', 'success');
+    const nombre     = document.getElementById('nombre').value.trim();
+    const p_apellido = document.getElementById('p_apellido').value.trim();
+    const s_apellido = document.getElementById('s_apellido').value.trim();
+    const rfc        = document.getElementById('rfc').value.trim().toUpperCase();
+    const curp       = document.getElementById('curp').value.trim().toUpperCase();
+    const sexo       = document.getElementById('sexo').value;
+    const edadVal    = document.getElementById('edad').value;
+    const direccion  = document.getElementById('direccion').value.trim();
+    const tipo       = document.getElementById('tipo').value;
+    const rol        = document.getElementById('rol').value;
+    const estado     = document.getElementById('estado').value;
+
+    // Validaciones
+    if (!nombre)                          { showAlert('El campo Nombre es obligatorio.', 'error'); return; }
+    if (!p_apellido)                      { showAlert('El campo Primer Apellido es obligatorio.', 'error'); return; }
+    if (!s_apellido)                      { showAlert('El campo Segundo Apellido es obligatorio.', 'error'); return; }
+    if (!rfc)                             { showAlert('El campo RFC es obligatorio.', 'error'); return; }
+    if (rfc.length !== 13)                { showAlert('El RFC debe tener exactamente 13 caracteres.', 'error'); return; }
+    if (!curp)                            { showAlert('El campo CURP es obligatorio.', 'error'); return; }
+    if (curp.length !== 18)               { showAlert('La CURP debe tener exactamente 18 caracteres.', 'error'); return; }
+    if (!sexo)                            { showAlert('Debes seleccionar el Sexo.', 'error'); return; }
+    if (!edadVal)                         { showAlert('El campo Edad es obligatorio.', 'error'); return; }
+    if (isNaN(edadVal) || parseInt(edadVal) <= 0 || parseInt(edadVal) > 120) {
+                                           showAlert('La Edad debe ser un número válido entre 1 y 120.', 'error'); return; }
+    if (!direccion)                       { showAlert('El campo Dirección es obligatorio.', 'error'); return; }
+    if (!tipo)                            { showAlert('Debes seleccionar el Tipo: Empleado o Voluntario.', 'error'); return; }
+    if (!rol)                             { showAlert('Debes seleccionar un Rol.', 'error'); return; }
+
+    const body = { nombre, primer_apellido: p_apellido, segundo_apellido: s_apellido,
+                   rfc, curp, sexo, edad: parseInt(edadVal), direccion, tipo };
+
+    const res = await fetch(`${API}/api/usuarios/${id}`, { method:'PUT', headers:authHeaders(), body:JSON.stringify(body) });
+    if (!res.ok) { showAlert('Error al guardar los cambios. Intenta de nuevo.', 'error'); return; }
+    await fetch(`${API}/api/usuarios/${id}/rol`, { method:'PUT', headers:authHeaders(), body:JSON.stringify({ rol, estado }) });
+
+    showAlert('✅ Cambios guardados correctamente.', 'success');
     setTimeout(()=>location.href='lista-usuarios.html', 1500);
   }
 
@@ -124,7 +144,9 @@
   }
 
   function showAlert(msg, tipo) {
-    document.getElementById('alert').innerHTML = `<div class="alert alert-${tipo==='error'?'error':'success'}" style="margin-bottom:1rem;">${msg}</div>`;
+    const div = document.getElementById('alert');
+    div.innerHTML = `<div class="alert alert-${tipo==='error'?'error':'success'}" style="margin-bottom:1rem;">${msg}</div>`;
+    div.scrollIntoView({ behavior: 'smooth' });
   }
 
   cargar();

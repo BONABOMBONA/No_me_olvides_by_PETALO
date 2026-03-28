@@ -1,9 +1,10 @@
 -- ============================================================
 -- No Me Olvides — Fundación Infantil
--- Schema de base de datos basado en el FUD (CEAVEM)
+-- Schema COMPLETO v2 — Incluye catálogo de discapacidades
+-- Basado en FUD CEAVEM y LGDNNA
 -- ============================================================
 
--- ── PERSONAL (empleados y voluntarios de la fundación) ──────
+-- ── PERSONAL ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS personal (
     id                  SERIAL PRIMARY KEY,
     nombre              VARCHAR(100) NOT NULL,
@@ -28,7 +29,7 @@ CREATE TABLE IF NOT EXISTS personal (
     fecha_registro      TIMESTAMP    DEFAULT NOW()
 );
 
--- ── INVITACIONES (links de registro con token) ───────────────
+-- ── INVITACIONES ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS invitaciones (
     id              SERIAL PRIMARY KEY,
     token           VARCHAR(100) UNIQUE NOT NULL,
@@ -38,9 +39,17 @@ CREATE TABLE IF NOT EXISTS invitaciones (
     usado           BOOLEAN   DEFAULT FALSE
 );
 
--- ── NNA (expedientes de beneficiarios) ──────────────────────
-CREATE TABLE IF NOT EXISTS nna (
+-- ── CATÁLOGO DE DISCAPACIDADES (Petalo) ──────────────────────
+CREATE TABLE IF NOT EXISTS catalogo_discapacidades (
+    id_discapacidad     SERIAL PRIMARY KEY,
+    tipo                VARCHAR(20) NOT NULL CHECK (tipo IN ('Física','Mental','Intelectual','Visual','Auditiva','Múltiple')),
+    descripcion         VARCHAR(200) NOT NULL,
+    grado_dependencia   VARCHAR(20) NOT NULL CHECK (grado_dependencia IN ('Moderada','Severa','Gran dependencia')),
+    es_permanente       BOOLEAN DEFAULT TRUE
+);
 
+-- ── NNA ───────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS nna (
     id                      SERIAL PRIMARY KEY,
 
     -- SECCIÓN I: Datos de la víctima (hoja 1 FUD)
@@ -57,7 +66,7 @@ CREATE TABLE IF NOT EXISTS nna (
     lugar_nac_comunidad     VARCHAR(80),
     estado_civil            VARCHAR(30),
 
-    -- DOMICILIO (hoja 1 FUD)
+    -- DOMICILIO
     calle                   VARCHAR(120),
     numero_exterior         VARCHAR(20),
     numero_interior         VARCHAR(20),
@@ -73,7 +82,7 @@ CREATE TABLE IF NOT EXISTS nna (
     nombre_victima_directa  VARCHAR(200),
     relacion_victima        VARCHAR(100),
 
-    -- RELATO DE HECHOS (hoja 2 FUD)
+    -- RELATO DE HECHOS
     lugar_hechos_calle      VARCHAR(120),
     lugar_hechos_colonia    VARCHAR(80),
     lugar_hechos_municipio  VARCHAR(80),
@@ -81,75 +90,126 @@ CREATE TABLE IF NOT EXISTS nna (
     fecha_hechos            DATE,
     relato_hechos           TEXT,
 
-    -- SECCIÓN VI: Tipo de daño (hoja 3 FUD)
+    -- DAÑO (hoja 3 FUD)
     dano_fisico             BOOLEAN DEFAULT FALSE,
     dano_psicologico        BOOLEAN DEFAULT FALSE,
     dano_patrimonial        BOOLEAN DEFAULT FALSE,
     dano_sexual             BOOLEAN DEFAULT FALSE,
 
-    -- INVESTIGACIÓN MINISTERIAL (hoja 3 FUD)
+    -- INVESTIGACIÓN MINISTERIAL
     denuncio_mp             BOOLEAN DEFAULT FALSE,
     fecha_denuncia_mp       DATE,
-    competencia_mp          VARCHAR(10)  CHECK (competencia_mp IN ('federal', 'local')),
+    competencia_mp          VARCHAR(20),
     entidad_mp              VARCHAR(60),
-    delito_mp               VARCHAR(120),
-    agencia_mp              VARCHAR(120),
+    delito_mp               VARCHAR(200),
+    agencia_mp              VARCHAR(100),
     numero_averiguacion     VARCHAR(60),
     estado_investigacion    VARCHAR(80),
 
-    -- PROCESO JUDICIAL (hoja 3 FUD)
+    -- PROCESO JUDICIAL
     tiene_proceso_judicial  BOOLEAN DEFAULT FALSE,
     fecha_inicio_judicial   DATE,
-    competencia_judicial    VARCHAR(10),
+    competencia_judicial    VARCHAR(20),
     entidad_judicial        VARCHAR(60),
-    delito_judicial         VARCHAR(120),
-    numero_juzgado          VARCHAR(60),
-    numero_proceso          VARCHAR(60),
+    delito_judicial         VARCHAR(200),
+    numero_juzgado          VARCHAR(40),
+    numero_proceso          VARCHAR(40),
     estado_proceso          VARCHAR(80),
 
-    -- SECCIÓN VIII: Vulnerabilidad (hoja 8 FUD)
+    -- VULNERABILIDAD (hoja 8 FUD)
     es_menor                BOOLEAN DEFAULT TRUE,
-    nombre_tutor            VARCHAR(200),
-    contacto_tutor          VARCHAR(120),
+
+    -- Datos del tutor
+    tutor_nombre            VARCHAR(100),
+    tutor_primer_apellido   VARCHAR(60),
+    tutor_segundo_apellido  VARCHAR(60),
+    tutor_parentesco        VARCHAR(80),
+    tutor_telefono          VARCHAR(20),
+    tutor_correo            VARCHAR(120),
+
+    -- Discapacidad (catálogo Petalo)
     tiene_discapacidad      BOOLEAN DEFAULT FALSE,
-    tipo_discapacidad       VARCHAR(60)  CHECK (tipo_discapacidad IN (
-                                'fisica', 'mental', 'intelectual', 'visual', 'auditiva'
-                            )),
-    grado_dependencia       VARCHAR(30)  CHECK (grado_dependencia IN (
-                                'moderada', 'severa', 'gran_dependencia'
-                            )),
+    tipo_discapacidad       VARCHAR(20) CHECK (tipo_discapacidad IN ('Física','Mental','Intelectual','Visual','Auditiva','Múltiple')),
+    grado_dependencia       VARCHAR(20) CHECK (grado_dependencia IN ('Moderada','Severa','Gran dependencia')),
+
+    -- Idioma / comunidad
     habla_espanol           BOOLEAN DEFAULT TRUE,
     requiere_traductor      BOOLEAN DEFAULT FALSE,
     idioma_lengua           VARCHAR(80),
     pertenece_indigena      BOOLEAN DEFAULT FALSE,
     comunidad_indigena      VARCHAR(100),
-    tipo_violencia          VARCHAR(30)  CHECK (tipo_violencia IN (
-                                'psicologica', 'fisica', 'economica',
-                                'sexual', 'feminicida', 'otro'
-                            )),
+    es_migrante             BOOLEAN DEFAULT FALSE,
+    pais_origen             VARCHAR(60),
 
-    -- SOLICITANTE (quién llenó el FUD — hoja 1)
-    tipo_solicitante        VARCHAR(30)  CHECK (tipo_solicitante IN (
-                                'victima', 'familiar', 'servidor_publico', 'representante'
-                            )),
+    -- Tipo de violencia contra las mujeres (hoja 8 FUD)
+    violencia_psicologica   BOOLEAN DEFAULT FALSE,
+    violencia_fisica        BOOLEAN DEFAULT FALSE,
+    violencia_economica     BOOLEAN DEFAULT FALSE,
+    violencia_patrimonial   BOOLEAN DEFAULT FALSE,
+    violencia_sexual        BOOLEAN DEFAULT FALSE,
+    violencia_obstetrica    BOOLEAN DEFAULT FALSE,
+    violencia_feminicida    BOOLEAN DEFAULT FALSE,
+
+    -- Tipo de violencia (campo general)
+    tipo_violencia          VARCHAR(50),
+
+    -- Solicitante
+    tipo_solicitante        VARCHAR(40),
     nombre_solicitante      VARCHAR(200),
     parentesco_solicitante  VARCHAR(80),
 
-    -- ESTATUS DEL EXPEDIENTE (propio del sistema — propuesta PETALO)
-    estatus                 VARCHAR(20)  DEFAULT 'sin_proceso'
-                                         CHECK (estatus IN ('sin_proceso', 'en_proceso', 'concluido')),
-    fecha_ingreso           TIMESTAMP    DEFAULT NOW(),
+    -- Control
+    estatus                 VARCHAR(20) DEFAULT 'sin_proceso'
+                                         CHECK (estatus IN ('sin_proceso','en_proceso','concluido')),
+    registrado_por          INTEGER REFERENCES personal(id),
+    fecha_ingreso           TIMESTAMP DEFAULT NOW(),
     fecha_inicio_proceso    TIMESTAMP,
     fecha_cierre            TIMESTAMP,
-
-    -- AUDITORÍA
-    registrado_por          INTEGER REFERENCES personal(id),
-    ultima_actualizacion    TIMESTAMP DEFAULT NOW()
+    ultima_actualizacion    TIMESTAMP
 );
 
--- ── ÍNDICES para búsqueda rápida ────────────────────────────
-CREATE INDEX IF NOT EXISTS idx_nna_curp       ON nna(curp);
-CREATE INDEX IF NOT EXISTS idx_nna_apellido   ON nna(primer_apellido);
-CREATE INDEX IF NOT EXISTS idx_nna_estatus    ON nna(estatus);
-CREATE INDEX IF NOT EXISTS idx_personal_rol   ON personal(rol);
-CREATE INDEX IF NOT EXISTS idx_personal_estado ON personal(estado);
+-- ── RELACIÓN NNA ↔ DISCAPACIDADES ────────────────────────────
+CREATE TABLE IF NOT EXISTS nna_discapacidades (
+    id              SERIAL PRIMARY KEY,
+    id_nna          INTEGER REFERENCES nna(id) ON DELETE CASCADE,
+    id_discapacidad INTEGER REFERENCES catalogo_discapacidades(id_discapacidad),
+    observaciones   TEXT,
+    fecha_registro  TIMESTAMP DEFAULT NOW()
+);
+
+-- ── DATOS DEL CATÁLOGO ───────────────────────────────────────
+INSERT INTO catalogo_discapacidades (tipo, descripcion, grado_dependencia, es_permanente) VALUES
+('Física',      'Limitación para moverse o caminar',            'Moderada',         true),
+('Física',      'Limitación para usar brazos o manos',          'Moderada',         true),
+('Física',      'Parálisis parcial',                            'Severa',           true),
+('Física',      'Parálisis total',                              'Gran dependencia', true),
+('Mental',      'Trastorno de ansiedad',                        'Moderada',         false),
+('Mental',      'Trastorno depresivo',                          'Moderada',         false),
+('Mental',      'Trastorno bipolar',                            'Severa',           false),
+('Mental',      'Esquizofrenia',                                'Severa',           true),
+('Mental',      'Trastorno por estrés postraumático (TEPT)',    'Moderada',         false),
+('Intelectual', 'Discapacidad intelectual leve',                'Moderada',         true),
+('Intelectual', 'Discapacidad intelectual moderada',            'Severa',           true),
+('Intelectual', 'Discapacidad intelectual severa',              'Gran dependencia', true),
+('Intelectual', 'Síndrome de Down',                             'Severa',           true),
+('Intelectual', 'Trastorno del Espectro Autista (TEA)',         'Severa',           true),
+('Visual',      'Baja visión',                                  'Moderada',         true),
+('Visual',      'Ceguera total',                                'Severa',           true),
+('Visual',      'Pérdida visual en un ojo',                     'Moderada',         true),
+('Auditiva',    'Hipoacusia leve',                              'Moderada',         true),
+('Auditiva',    'Hipoacusia severa',                            'Severa',           true),
+('Auditiva',    'Sordera total',                                'Gran dependencia', true),
+('Auditiva',    'Sordera en un oído',                           'Moderada',         true),
+('Múltiple',    'Discapacidad física y visual',                 'Gran dependencia', true),
+('Múltiple',    'Discapacidad física e intelectual',            'Gran dependencia', true),
+('Múltiple',    'Discapacidad auditiva e intelectual',          'Gran dependencia', true),
+('Múltiple',    'Discapacidad física y mental',                 'Gran dependencia', true);
+
+-- ── DATOS DE PRUEBA ──────────────────────────────────────────
+INSERT INTO personal (nombre, primer_apellido, rfc, curp, correo, contrasena, rol, estado, activo, tipo) VALUES
+('Director', 'Sistema', 'SIST800101ABC', 'SIST800101HDFRRL01', 'director@fundacion.org', '1234', 'director', 'activo', true, 'empleado'),
+('Coordinador', 'Sistema', 'COOR800101ABC', 'COOR800101HDFRRL01', 'coordinador@fundacion.org', '1234', 'coordinador', 'activo', true, 'empleado'),
+('Psicólogo', 'Sistema', 'PSIC800101ABC', 'PSIC800101HDFRRL01', 'psicologo@fundacion.org', '1234', 'psicologo', 'activo', true, 'empleado'),
+('Doctor', 'Sistema', 'DOCT800101ABC', 'DOCT800101HDFRRL01', 'doctor@fundacion.org', '1234', 'doctor', 'activo', true, 'empleado'),
+('Donante', 'Sistema', 'DONA800101ABC', 'DONA800101HDFRRL01', 'donante@fundacion.org', '1234', 'donante', 'activo', true, 'voluntario')
+ON CONFLICT (correo) DO NOTHING;
