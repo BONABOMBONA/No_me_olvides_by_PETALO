@@ -128,6 +128,11 @@ CREATE TABLE IF NOT EXISTS nna (
     tutor_correo            VARCHAR(120),
 
     -- Discapacidad (catálogo Petalo)
+    -- NOTA DE DISEÑO: tipo_discapacidad y grado_dependencia se mantienen aquí como
+    -- campos de acceso rápido para la discapacidad principal del NNA (hoja 8 FUD).
+    -- La tabla relacional nna_discapacidades permite registrar múltiples discapacidades
+    -- con observaciones clínicas detalladas. Ambas estructuras coexisten intencionalmente:
+    -- una para consultas rápidas en listados, otra para el expediente clínico completo.
     tiene_discapacidad      BOOLEAN DEFAULT FALSE,
     tipo_discapacidad       VARCHAR(20) CHECK (tipo_discapacidad IN ('Física','Mental','Intelectual','Visual','Auditiva','Múltiple')),
     grado_dependencia       VARCHAR(20) CHECK (grado_dependencia IN ('Moderada','Severa','Gran dependencia')),
